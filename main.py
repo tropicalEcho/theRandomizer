@@ -1,14 +1,14 @@
-import random, os, sys
+import random, os, sys, time
 
 helpText = """
 COMMANDS:
-<ITEM IN THE JAR>   - Add items to the jar.
-CLEAR | CLS         - Clear the screen.
-HELP | H            - Show this help text.
-EXIT | QUIT         - Exit the program.
-DONE                - Pick items from the jar.
-  -T | --TIME <TIME>   - Adds a delay (in seconds) between picks.
-  -C | --COUNT <COUNT> - Specifies how many items to pick.
+<ITEM IN THE JAR>    - ADD ITEMS TO THE JAR
+CLEAR | CLS          - CLEARS THE SCREEN
+HELP | H             - PRINTS THIS
+EXIT | QUIT          - KILLS THE PROGRAM
+DONE                 - PICKS ITEM(S) FROM THE JAR
+    -T | --TIME <TIME>   - ADDS DELAY (IN SECONDS) BETWEEN REMOVALS
+    -C | --COUNT <COUNT> - SPECIFIES HOW MANY ITEMS TO PICK 
 """
 
 def clear():
@@ -16,30 +16,25 @@ def clear():
 
 def confirmation(userInput, purpose, message="ARE YOU SURE? (Y | N) "):
     while True:
-        choice = input(message).strip().upper()
-        if choice in ["Y", "YES"]:
-            if purpose == "KILL":
-                sys.exit("GOODBYE!")
-            elif purpose == "DUPLICATE":
-                jar.append(userInput)
+        if choice := input(message).strip().upper() in ["Y", "YES"]:
+            if purpose == "KILL": sys.exit("GOODBYE!")
+            if purpose == "DUPLICATE": jar.append(userInput)
             break
         elif choice in ["N", "NO"]:
             break
-        else:
-            print("?!")
+        else: print("?!")
 
 def pickSome(jar, howMany=1, delay=0):
     selected = []
     while len(selected) < howMany and jar:
-        unfaithful = random.choice(jar)
-        jar.remove(unfaithful)
+        jar.remove(unfaithful := random.choice(jar))
         selected.append(unfaithful)
         if delay > 0:
             print(f"REMOVED: {unfaithful}")
             time.sleep(delay)
-    if selected:
+    if selected: 
         print(f"FINAL CHOICE{'S' if len(selected) > 1 else ''}: {', '.join(map(str, selected))}")
-    else:
+    else: 
         print("JAR IS VOID!")
     jar.clear()
 
@@ -48,12 +43,9 @@ def main():
     jar = []
     clear()
     while True:
-        userInput = input("~theOracle$ ").strip()
-        if not userInput:
+        if not (userInput := input("~theOracle$ ").strip()): 
             continue
-        command = userInput.split()[0].upper()
-        
-        if command in ["CLEAR", "CLS"]:
+        if command := userInput.split()[0].upper() in ["CLEAR", "CLS"]:
             clear()
         elif command in ["HELP", "H"]:
             print(helpText)
@@ -63,14 +55,14 @@ def main():
             confirmation(None, "KILL", "THE JAR IS NOT VOID... QUIT ANYWAYS? (Y | N) ")
         elif command == "DONE":
             args = userInput.split()[1:]
-            time_delay = 0
+            timeDelay = 0
             count = 1
             i = 0
 
-            while i < len(args):
+            while i := 0 < len(args):
                 if args[i] in ["-T", "--TIME"] and i + 1 < len(args):
                     try:
-                        time_delay = float(args[i + 1])
+                        timeDelay = float(args[i + 1])
                         i += 2
                     except ValueError:
                         print("ERROR: TIME MUST BE A POSITVE NUMBER!")
@@ -86,7 +78,7 @@ def main():
                     print(f"ERROR: UNKNOWN OPTION '{args[i].upper()}'")
                     break
             
-            pickSome(jar, howMany=count, delay=time_delay)
+            pickSome(jar, howMany=count, delay=timeDelay)
         else:
             if userInput in jar:
                 confirmation(userInput, "DUPLICATE", f"'{userInput}' IS ALREADY IN THE JAR! ADD 'EM ANYWAYS? (Y | N) ")
